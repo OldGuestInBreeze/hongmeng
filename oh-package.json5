@@ -1,0 +1,14 @@
+{
+  "modelVersion": "5.0.0",
+  "name": "hongmeng-memo",
+  "version": "1.0.0",
+  "description": "A simple HarmonyOS memo application built with ArkTS.",
+  "main": "",
+  "author": "OldGuestInBreeze",
+  "license": "Apache-2.0",
+  "dependencies": {},
+  "devDependencies": {
+    "@ohos/hvigor": "5.0.4",
+    "@ohos/hvigor-ohos-plugin": "5.0.4"
+  }
+}

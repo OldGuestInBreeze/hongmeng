@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "Memo entry module"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "Memo app entry ability"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "Memo"
+    }
+  ]
+}

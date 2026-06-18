@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "备忘录入口模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "备忘录应用入口"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "简洁备忘录"
+    }
+  ]
+}

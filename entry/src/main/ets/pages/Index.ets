@@ -17,6 +17,7 @@ const DANGER_COLOR: string = '#C2410C';
 const SUCCESS_COLOR: string = '#3F8F4F';
 const PAPER_LINE: string = '#F1E3C4';
 const IMPORTANT_COLOR: string = '#B45309';
+const RAIL_COLOR: string = '#123C3A';
 
 @Builder
 function SectionTitle(title: string, subTitle: string) {
@@ -102,14 +103,14 @@ struct MemoCard {
   @Builder
   TagView() {
     Row() {
-      Text(this.memo.important ? '重要事项' : '普通记录')
+      Text(this.memo.important ? '重要' : '普通')
         .fontSize(12)
         .fontColor(this.memo.important ? IMPORTANT_COLOR : PRIMARY_COLOR)
         .padding({ left: 10, right: 10, top: 4, bottom: 4 })
         .backgroundColor(this.memo.important ? '#FFF4D6' : PRIMARY_LIGHT)
         .borderRadius(14)
 
-      Text(this.memo.done ? '已完成' : '进行中')
+      Text(this.memo.done ? '已完成' : '待处理')
         .fontSize(12)
         .fontColor(this.memo.done ? SUCCESS_COLOR : '#475569')
         .padding({ left: 10, right: 10, top: 4, bottom: 4 })
@@ -120,84 +121,79 @@ struct MemoCard {
   }
 
   build() {
-    Row() {
-      Column() {
-        Text(this.memo.createdAt)
-          .fontSize(12)
-          .fontColor('#9A8F7A')
-          .textAlign(TextAlign.Center)
+    Column() {
+      Row() {
         Toggle({ type: ToggleType.Checkbox, isOn: this.memo.done })
           .selectedColor(SUCCESS_COLOR)
-          .margin({ top: 14 })
           .onChange((isOn: boolean) => {
             this.onToggleDone(this.memo.id, isOn);
           })
+
+        Blank()
+
+        Text(this.memo.createdAt)
+          .fontSize(12)
+          .fontColor('#9A8F7A')
       }
-      .width(64)
-      .alignItems(HorizontalAlign.Center)
+      .width('100%')
 
-      Column() {
-        Row() {
-          Text(this.memo.title)
-            .fontSize(18)
-            .fontWeight(FontWeight.Bold)
-            .fontColor(this.memo.done ? '#9A8F7A' : TEXT_COLOR)
-            .decoration({ type: this.memo.done ? TextDecorationType.LineThrough : TextDecorationType.None })
-            .maxLines(1)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
-          Blank()
-        }
-        .width('100%')
+      Text(this.memo.title)
+        .fontSize(20)
+        .fontWeight(FontWeight.Bold)
+        .fontColor(this.memo.done ? '#9A8F7A' : TEXT_COLOR)
+        .decoration({ type: this.memo.done ? TextDecorationType.LineThrough : TextDecorationType.None })
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+        .margin({ top: 16 })
 
-        Text(this.memo.content)
-          .fontSize(14)
-          .fontColor(SUB_TEXT_COLOR)
-          .lineHeight(22)
-          .maxLines(3)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .margin({ top: 10 })
+      Text(this.memo.content)
+        .fontSize(14)
+        .fontColor(SUB_TEXT_COLOR)
+        .lineHeight(22)
+        .maxLines(3)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
+        .margin({ top: 10 })
 
-        Row() {
-          this.TagView()
-          Blank()
-          Button('改')
-            .fontSize(13)
-            .fontColor(PRIMARY_COLOR)
-            .backgroundColor('#E7F5F2')
-            .width(42)
-            .height(32)
-            .borderRadius(16)
-            .onClick(() => {
-              this.onEdit(this.memo.id);
-            })
-          Button('删')
-            .fontSize(13)
-            .fontColor(DANGER_COLOR)
-            .backgroundColor('#FCE8DD')
-            .width(42)
-            .height(32)
-            .borderRadius(16)
-            .margin({ left: 8 })
-            .onClick(() => {
-              this.onDelete(this.memo.id);
-            })
-        }
-        .width('100%')
-        .margin({ top: 18 })
+      Blank()
+
+      Row() {
+        this.TagView()
+        Blank()
+        Button('编辑')
+          .fontSize(12)
+          .fontColor(PRIMARY_COLOR)
+          .backgroundColor('#E7F5F2')
+          .height(32)
+          .borderRadius(16)
+          .onClick(() => {
+            this.onEdit(this.memo.id);
+          })
+        Button('删除')
+          .fontSize(12)
+          .fontColor(DANGER_COLOR)
+          .backgroundColor('#FCE8DD')
+          .height(32)
+          .borderRadius(16)
+          .margin({ left: 8 })
+          .onClick(() => {
+            this.onDelete(this.memo.id);
+          })
       }
-      .layoutWeight(1)
-      .padding({ left: 16, right: 16, top: 18, bottom: 18 })
-      .backgroundColor(CARD_COLOR)
-      .border({ width: 1, color: PAPER_LINE })
-      .borderRadius(26)
-      .shadow({
-        radius: 10,
-        color: '#12000000',
-        offsetX: 0,
-        offsetY: 5
-      })
+      .width('100%')
+      .margin({ top: 18 })
     }
     .width('100%')
+    .height(184)
+    .padding(18)
+    .backgroundColor(this.memo.important ? '#FFF7D9' : CARD_COLOR)
+    .border({ width: 1, color: this.memo.important ? '#F2D48B' : PAPER_LINE })
+    .borderRadius(24)
+    .shadow({
+      radius: 10,
+      color: '#12000000',
+      offsetX: 0,
+      offsetY: 5
+    })
   }
 }
 
@@ -457,29 +453,85 @@ struct Index {
   }
 
   @Builder
-  TopBoard() {
+  SideRail() {
+    Column() {
+      Text('MEMO')
+        .fontSize(13)
+        .fontWeight(FontWeight.Bold)
+        .fontColor('#DDF8F3')
+        .rotate({ angle: -90 })
+        .margin({ top: 28, bottom: 30 })
+
+      Button('+')
+        .width(46)
+        .height(46)
+        .fontSize(28)
+        .fontWeight(FontWeight.Bold)
+        .fontColor(RAIL_COLOR)
+        .backgroundColor('#F7F1E5')
+        .borderRadius(23)
+        .onClick(() => {
+          this.openAddDialog();
+        })
+
+      Column({ space: 12 }) {
+        Text(this.totalCount().toString())
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .fontColor(Color.White)
+        Text('全部')
+          .fontSize(12)
+          .fontColor('#BFE8E3')
+      }
+      .margin({ top: 38 })
+
+      Column({ space: 12 }) {
+        Text(this.todoCount().toString())
+          .fontSize(24)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#FFD166')
+        Text('待办')
+          .fontSize(12)
+          .fontColor('#BFE8E3')
+      }
+      .margin({ top: 34 })
+
+      Blank()
+
+      Text('备忘')
+        .fontSize(14)
+        .fontColor('#BFE8E3')
+        .margin({ bottom: 24 })
+    }
+    .width(76)
+    .height('100%')
+    .justifyContent(FlexAlign.Start)
+    .alignItems(HorizontalAlign.Center)
+    .backgroundColor(RAIL_COLOR)
+  }
+
+  @Builder
+  ContentHeader() {
     Column() {
       Row() {
         Column() {
-          Text('我的记事本')
-            .fontSize(30)
+          Text('事项工作台')
+            .fontSize(28)
             .fontWeight(FontWeight.Bold)
             .fontColor(TEXT_COLOR)
-          Text('安静记录，把事情一件件完成')
-            .fontSize(14)
-            .fontColor('#6F6758')
-            .margin({ top: 8 })
+          Text('左侧快捷入口，右侧便签管理')
+            .fontSize(13)
+            .fontColor(SUB_TEXT_COLOR)
+            .margin({ top: 6 })
         }
         .alignItems(HorizontalAlign.Start)
+
         Blank()
-        Button('新增')
-          .height(42)
-          .fontSize(15)
-          .fontColor(Color.White)
-          .backgroundColor(PRIMARY_COLOR)
-          .borderRadius(21)
-          .onClick(() => {
-            this.openAddDialog();
+
+        Toggle({ type: ToggleType.Switch, isOn: this.showDone })
+          .selectedColor(PRIMARY_COLOR)
+          .onChange((isOn: boolean) => {
+            this.showDone = isOn;
           })
       }
       .width('100%')
@@ -490,37 +542,23 @@ struct Index {
         CountBadge({ label: '完成', value: this.doneCount(), color: SUCCESS_COLOR })
       }
       .width('100%')
-      .margin({ top: 22 })
+      .margin({ top: 18 })
     }
     .width('100%')
-    .padding({ left: 22, right: 22, top: 42, bottom: 22 })
+    .padding({ left: 18, right: 18, top: 28, bottom: 18 })
     .backgroundColor('#FFF8E8')
+    .borderRadius(28)
     .border({ width: 1, color: '#EFE0BC' })
-    .borderRadius({ bottomLeft: 34, bottomRight: 34 })
   }
 
   build() {
-    Column() {
-      this.TopBoard()
+    Row() {
+      this.SideRail()
 
       Column() {
-        Row() {
-          SectionTitle('今天的备忘', this.showDone ? '全部记录都在这里' : '隐藏已完成记录')
-          Row() {
-            Text('显示完成')
-              .fontSize(13)
-              .fontColor(SUB_TEXT_COLOR)
-            Toggle({ type: ToggleType.Switch, isOn: this.showDone })
-              .selectedColor(PRIMARY_COLOR)
-              .margin({ left: 8 })
-              .onChange((isOn: boolean) => {
-                this.showDone = isOn;
-              })
-          }
-        }
-        .width('100%')
-        .alignItems(VerticalAlign.Center)
-        .margin({ top: 18 })
+        this.ContentHeader()
+
+        SectionTitle('便签列表', this.showDone ? '当前显示全部状态' : '当前只显示待办')
 
         Scroll() {
           Column({ space: 16 }) {
@@ -544,32 +582,15 @@ struct Index {
             }
           }
           .width('100%')
-          .padding({ bottom: 120 })
+          .padding({ bottom: 96 })
         }
         .layoutWeight(1)
         .scrollBar(BarState.Off)
       }
       .layoutWeight(1)
-      .padding({ left: 18, right: 18 })
-
-      Button('写一条新的备忘')
-        .width('88%')
-        .height(54)
-        .fontSize(17)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(Color.White)
-        .backgroundColor(PRIMARY_COLOR)
-        .borderRadius(27)
-        .shadow({
-          radius: 14,
-          color: '#330F766E',
-          offsetX: 0,
-          offsetY: 7
-        })
-        .margin({ bottom: 20 })
-        .onClick(() => {
-          this.openAddDialog();
-        })
+      .height('100%')
+      .padding({ left: 16, right: 16, top: 18, bottom: 0 })
+      .backgroundColor(PAGE_BACKGROUND)
     }
     .width('100%')
     .height('100%')

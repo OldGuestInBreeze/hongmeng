@@ -224,25 +224,19 @@ struct MemoDialog {
         .width('100%')
         .textAlign(TextAlign.Start)
 
-      TextInput({ placeholder: '请输入标题', text: this.title })
+      TextInput({ placeholder: '请输入标题', text: $$this.title })
         .height(48)
         .fontSize(16)
         .backgroundColor('#F3F6FF')
         .borderRadius(14)
         .margin({ top: 20 })
-        .onChange((value: string) => {
-          this.title = value;
-        })
 
-      TextArea({ placeholder: '请输入备忘内容', text: this.content })
+      TextArea({ placeholder: '请输入备忘内容', text: $$this.content })
         .height(120)
         .fontSize(15)
         .backgroundColor('#F3F6FF')
         .borderRadius(14)
         .margin({ top: 12 })
-        .onChange((value: string) => {
-          this.content = value;
-        })
 
       Row() {
         Text('标记为重要')

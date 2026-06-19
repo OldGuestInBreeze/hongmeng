@@ -7,21 +7,23 @@ interface MemoItem {
   createdAt: string;
 }
 
-const PRIMARY_COLOR: string = '#4F7FFF';
-const PRIMARY_LIGHT: string = '#EEF3FF';
-const TEXT_COLOR: string = '#1F2937';
-const SUB_TEXT_COLOR: string = '#6B7280';
-const CARD_COLOR: string = '#FFFFFF';
-const PAGE_BACKGROUND: string = '#F6F8FF';
-const DANGER_COLOR: string = '#F05252';
-const SUCCESS_COLOR: string = '#22C55E';
+const PRIMARY_COLOR: string = '#0F766E';
+const PRIMARY_LIGHT: string = '#DDF8F3';
+const TEXT_COLOR: string = '#263238';
+const SUB_TEXT_COLOR: string = '#7B8794';
+const CARD_COLOR: string = '#FFFDF7';
+const PAGE_BACKGROUND: string = '#F7F1E5';
+const DANGER_COLOR: string = '#C2410C';
+const SUCCESS_COLOR: string = '#3F8F4F';
+const PAPER_LINE: string = '#F1E3C4';
+const IMPORTANT_COLOR: string = '#B45309';
 
 @Builder
-function SectionHeader(title: string, subTitle: string) {
+function SectionTitle(title: string, subTitle: string) {
   Row() {
     Column() {
       Text(title)
-        .fontSize(20)
+        .fontSize(22)
         .fontWeight(FontWeight.Bold)
         .fontColor(TEXT_COLOR)
       Text(subTitle)
@@ -34,32 +36,31 @@ function SectionHeader(title: string, subTitle: string) {
     Blank()
   }
   .width('100%')
-  .padding({ left: 2, right: 2, top: 8, bottom: 8 })
+  .padding({ top: 8, bottom: 8 })
 }
 
 @Builder
 function EmptyState() {
   Column() {
-    Text('📝')
-      .fontSize(42)
-    Text('暂无备忘录')
-      .fontSize(18)
-      .fontWeight(FontWeight.Medium)
+    Text('空空如也')
+      .fontSize(20)
+      .fontWeight(FontWeight.Bold)
       .fontColor(TEXT_COLOR)
-      .margin({ top: 12 })
-    Text('点击右下角按钮创建第一条备忘录')
+    Text('点击底部按钮，写下第一条备忘录')
       .fontSize(14)
       .fontColor(SUB_TEXT_COLOR)
-      .margin({ top: 6 })
+      .margin({ top: 8 })
   }
   .width('100%')
-  .padding(32)
+  .height(180)
+  .justifyContent(FlexAlign.Center)
   .backgroundColor(CARD_COLOR)
-  .borderRadius(24)
+  .border({ width: 1, color: PAPER_LINE })
+  .borderRadius(28)
 }
 
 @Component
-struct StatCard {
+struct CountBadge {
   label: string = '';
   value: number = 0;
   color: string = PRIMARY_COLOR;
@@ -67,7 +68,7 @@ struct StatCard {
   build() {
     Column() {
       Text(this.value.toString())
-        .fontSize(22)
+        .fontSize(24)
         .fontWeight(FontWeight.Bold)
         .fontColor(this.color)
       Text(this.label)
@@ -76,15 +77,11 @@ struct StatCard {
         .margin({ top: 4 })
     }
     .layoutWeight(1)
-    .padding({ top: 14, bottom: 14 })
-    .backgroundColor(CARD_COLOR)
-    .borderRadius(18)
-    .shadow({
-      radius: 14,
-      color: '#14000000',
-      offsetX: 0,
-      offsetY: 4
-    })
+    .height(78)
+    .justifyContent(FlexAlign.Center)
+    .backgroundColor('#FFFFFC')
+    .border({ width: 1, color: PAPER_LINE })
+    .borderRadius(22)
   }
 }
 
@@ -103,105 +100,104 @@ struct MemoCard {
   onDelete: (id: number) => void = (id: number) => {};
 
   @Builder
-  StatusPill() {
-    Text(this.memo.done ? '已完成' : '待办')
-      .fontSize(12)
-      .fontColor(this.memo.done ? SUCCESS_COLOR : PRIMARY_COLOR)
-      .padding({ left: 10, right: 10, top: 4, bottom: 4 })
-      .backgroundColor(this.memo.done ? '#EAFBF1' : PRIMARY_LIGHT)
-      .borderRadius(12)
+  TagView() {
+    Row() {
+      Text(this.memo.important ? '重要事项' : '普通记录')
+        .fontSize(12)
+        .fontColor(this.memo.important ? IMPORTANT_COLOR : PRIMARY_COLOR)
+        .padding({ left: 10, right: 10, top: 4, bottom: 4 })
+        .backgroundColor(this.memo.important ? '#FFF4D6' : PRIMARY_LIGHT)
+        .borderRadius(14)
+
+      Text(this.memo.done ? '已完成' : '进行中')
+        .fontSize(12)
+        .fontColor(this.memo.done ? SUCCESS_COLOR : '#475569')
+        .padding({ left: 10, right: 10, top: 4, bottom: 4 })
+        .backgroundColor(this.memo.done ? '#E8F5E9' : '#ECEFF1')
+        .borderRadius(14)
+        .margin({ left: 8 })
+    }
   }
 
   build() {
-    Column() {
-      Row() {
+    Row() {
+      Column() {
+        Text(this.memo.createdAt)
+          .fontSize(12)
+          .fontColor('#9A8F7A')
+          .textAlign(TextAlign.Center)
         Toggle({ type: ToggleType.Checkbox, isOn: this.memo.done })
           .selectedColor(SUCCESS_COLOR)
+          .margin({ top: 14 })
           .onChange((isOn: boolean) => {
             this.onToggleDone(this.memo.id, isOn);
           })
+      }
+      .width(64)
+      .alignItems(HorizontalAlign.Center)
 
-        Column() {
-          Row() {
-            Text(this.memo.title)
-              .fontSize(18)
-              .fontWeight(FontWeight.Bold)
-              .fontColor(this.memo.done ? SUB_TEXT_COLOR : TEXT_COLOR)
-              .decoration({ type: this.memo.done ? TextDecorationType.LineThrough : TextDecorationType.None })
-              .maxLines(1)
-              .textOverflow({ overflow: TextOverflow.Ellipsis })
-
-            if (this.memo.important) {
-              Text('重要')
-                .fontSize(11)
-                .fontColor('#C2410C')
-                .padding({ left: 8, right: 8, top: 3, bottom: 3 })
-                .backgroundColor('#FFF2E8')
-                .borderRadius(10)
-                .margin({ left: 8 })
-            }
-          }
-          .width('100%')
-
-          Text(this.memo.content)
-            .fontSize(14)
-            .fontColor(SUB_TEXT_COLOR)
-            .lineHeight(20)
-            .maxLines(2)
+      Column() {
+        Row() {
+          Text(this.memo.title)
+            .fontSize(18)
+            .fontWeight(FontWeight.Bold)
+            .fontColor(this.memo.done ? '#9A8F7A' : TEXT_COLOR)
+            .decoration({ type: this.memo.done ? TextDecorationType.LineThrough : TextDecorationType.None })
+            .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
-            .margin({ top: 8 })
+          Blank()
         }
-        .layoutWeight(1)
-        .alignItems(HorizontalAlign.Start)
-        .margin({ left: 12 })
+        .width('100%')
+
+        Text(this.memo.content)
+          .fontSize(14)
+          .fontColor(SUB_TEXT_COLOR)
+          .lineHeight(22)
+          .maxLines(3)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .margin({ top: 10 })
+
+        Row() {
+          this.TagView()
+          Blank()
+          Button('改')
+            .fontSize(13)
+            .fontColor(PRIMARY_COLOR)
+            .backgroundColor('#E7F5F2')
+            .width(42)
+            .height(32)
+            .borderRadius(16)
+            .onClick(() => {
+              this.onEdit(this.memo.id);
+            })
+          Button('删')
+            .fontSize(13)
+            .fontColor(DANGER_COLOR)
+            .backgroundColor('#FCE8DD')
+            .width(42)
+            .height(32)
+            .borderRadius(16)
+            .margin({ left: 8 })
+            .onClick(() => {
+              this.onDelete(this.memo.id);
+            })
+        }
+        .width('100%')
+        .margin({ top: 18 })
       }
-      .width('100%')
-      .alignItems(VerticalAlign.Top)
-
-      Row() {
-        Text(this.memo.createdAt)
-          .fontSize(12)
-          .fontColor('#9CA3AF')
-
-        Blank()
-
-        this.StatusPill()
-
-        Button('编辑')
-          .fontSize(12)
-          .fontColor(PRIMARY_COLOR)
-          .backgroundColor(PRIMARY_LIGHT)
-          .borderRadius(14)
-          .height(30)
-          .margin({ left: 8 })
-          .onClick(() => {
-            this.onEdit(this.memo.id);
-          })
-
-        Button('删除')
-          .fontSize(12)
-          .fontColor(DANGER_COLOR)
-          .backgroundColor('#FFF1F1')
-          .borderRadius(14)
-          .height(30)
-          .margin({ left: 8 })
-          .onClick(() => {
-            this.onDelete(this.memo.id);
-          })
-      }
-      .width('100%')
-      .margin({ top: 18 })
+      .layoutWeight(1)
+      .padding({ left: 16, right: 16, top: 18, bottom: 18 })
+      .backgroundColor(CARD_COLOR)
+      .border({ width: 1, color: PAPER_LINE })
+      .borderRadius(26)
+      .shadow({
+        radius: 10,
+        color: '#12000000',
+        offsetX: 0,
+        offsetY: 5
+      })
     }
     .width('100%')
-    .padding(18)
-    .backgroundColor(CARD_COLOR)
-    .borderRadius(22)
-    .shadow({
-      radius: 16,
-      color: '#16000000',
-      offsetX: 0,
-      offsetY: 6
-    })
   }
 }
 
@@ -218,63 +214,82 @@ struct MemoDialog {
   build() {
     Column() {
       Text(this.dialogTitle)
-        .fontSize(22)
+        .fontSize(24)
         .fontWeight(FontWeight.Bold)
         .fontColor(TEXT_COLOR)
         .width('100%')
         .textAlign(TextAlign.Start)
 
-      TextInput({ placeholder: '请输入标题', text: this.title })
-        .height(48)
+      Text('把今天要记住的事情写下来')
+        .fontSize(13)
+        .fontColor(SUB_TEXT_COLOR)
+        .width('100%')
+        .margin({ top: 6 })
+
+      TextInput({ placeholder: '备忘标题', text: this.title })
+        .height(50)
         .fontSize(16)
-        .backgroundColor('#F3F6FF')
-        .borderRadius(14)
-        .margin({ top: 20 })
+        .backgroundColor('#FFFBF0')
+        .border({ width: 1, color: PAPER_LINE })
+        .borderRadius(18)
+        .margin({ top: 22 })
         .onChange((value: string) => {
           this.title = value;
         })
 
-      TextArea({ placeholder: '请输入备忘内容', text: this.content })
-        .height(120)
+      TextArea({ placeholder: '具体内容', text: this.content })
+        .height(126)
         .fontSize(15)
-        .backgroundColor('#F3F6FF')
-        .borderRadius(14)
+        .backgroundColor('#FFFBF0')
+        .border({ width: 1, color: PAPER_LINE })
+        .borderRadius(18)
         .margin({ top: 12 })
         .onChange((value: string) => {
           this.content = value;
         })
 
       Row() {
-        Text('标记为重要')
-          .fontSize(15)
-          .fontColor(TEXT_COLOR)
+        Column() {
+          Text('重要提醒')
+            .fontSize(15)
+            .fontWeight(FontWeight.Medium)
+            .fontColor(TEXT_COLOR)
+          Text('开启后卡片会带有醒目标记')
+            .fontSize(12)
+            .fontColor(SUB_TEXT_COLOR)
+            .margin({ top: 3 })
+        }
+        .alignItems(HorizontalAlign.Start)
         Blank()
         Toggle({ type: ToggleType.Switch, isOn: this.important })
-          .selectedColor('#FF9F43')
+          .selectedColor(IMPORTANT_COLOR)
           .onChange((isOn: boolean) => {
             this.important = isOn;
           })
       }
       .width('100%')
+      .padding(14)
+      .backgroundColor('#FAF2DF')
+      .borderRadius(18)
       .margin({ top: 16 })
 
       Row() {
         Button('取消')
           .layoutWeight(1)
-          .height(42)
+          .height(44)
           .fontColor(SUB_TEXT_COLOR)
-          .backgroundColor('#F3F4F6')
-          .borderRadius(16)
+          .backgroundColor('#EFE7D6')
+          .borderRadius(18)
           .onClick(() => {
             this.controller?.close();
           })
 
         Button(this.confirmText)
           .layoutWeight(1)
-          .height(42)
+          .height(44)
           .fontColor(Color.White)
           .backgroundColor(PRIMARY_COLOR)
-          .borderRadius(16)
+          .borderRadius(18)
           .margin({ left: 12 })
           .onClick(() => {
             this.onConfirm();
@@ -285,8 +300,8 @@ struct MemoDialog {
       .margin({ top: 22 })
     }
     .padding(24)
-    .backgroundColor(Color.White)
-    .borderRadius(26)
+    .backgroundColor('#FFFFFC')
+    .borderRadius(30)
   }
 }
 
@@ -442,110 +457,122 @@ struct Index {
   }
 
   @Builder
-  HeaderArea() {
+  TopBoard() {
     Column() {
-      Text('简洁备忘录')
-        .fontSize(30)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(Color.White)
-      Text('记录灵感，安排每天的重要事项')
-        .fontSize(14)
-        .fontColor('#EAF0FF')
-        .margin({ top: 8 })
+      Row() {
+        Column() {
+          Text('我的记事本')
+            .fontSize(30)
+            .fontWeight(FontWeight.Bold)
+            .fontColor(TEXT_COLOR)
+          Text('安静记录，把事情一件件完成')
+            .fontSize(14)
+            .fontColor('#6F6758')
+            .margin({ top: 8 })
+        }
+        .alignItems(HorizontalAlign.Start)
+        Blank()
+        Button('新增')
+          .height(42)
+          .fontSize(15)
+          .fontColor(Color.White)
+          .backgroundColor(PRIMARY_COLOR)
+          .borderRadius(21)
+          .onClick(() => {
+            this.openAddDialog();
+          })
+      }
+      .width('100%')
+
+      Row({ space: 10 }) {
+        CountBadge({ label: '全部', value: this.totalCount(), color: PRIMARY_COLOR })
+        CountBadge({ label: '待办', value: this.todoCount(), color: IMPORTANT_COLOR })
+        CountBadge({ label: '完成', value: this.doneCount(), color: SUCCESS_COLOR })
+      }
+      .width('100%')
+      .margin({ top: 22 })
     }
     .width('100%')
-    .alignItems(HorizontalAlign.Start)
-    .padding({ left: 24, right: 24, top: 44, bottom: 34 })
-    .backgroundColor(PRIMARY_COLOR)
-    .borderRadius({ bottomLeft: 30, bottomRight: 30 })
+    .padding({ left: 22, right: 22, top: 42, bottom: 22 })
+    .backgroundColor('#FFF8E8')
+    .border({ width: 1, color: '#EFE0BC' })
+    .borderRadius({ bottomLeft: 34, bottomRight: 34 })
   }
 
   build() {
-    Stack({ alignContent: Alignment.BottomEnd }) {
+    Column() {
+      this.TopBoard()
+
       Column() {
-        this.HeaderArea()
-
-        Column() {
-          Row({ space: 10 }) {
-            StatCard({ label: '全部', value: this.totalCount(), color: PRIMARY_COLOR })
-            StatCard({ label: '待办', value: this.todoCount(), color: '#F59E0B' })
-            StatCard({ label: '完成', value: this.doneCount(), color: SUCCESS_COLOR })
-          }
-          .width('100%')
-          .margin({ top: -22 })
-
+        Row() {
+          SectionTitle('今天的备忘', this.showDone ? '全部记录都在这里' : '隐藏已完成记录')
           Row() {
-            SectionHeader('备忘列表', this.showDone ? '显示全部事项' : '仅显示待办事项')
-            Row() {
-              Text('显示已完成')
-                .fontSize(13)
-                .fontColor(SUB_TEXT_COLOR)
-              Toggle({ type: ToggleType.Switch, isOn: this.showDone })
-                .selectedColor(PRIMARY_COLOR)
-                .margin({ left: 8 })
-                .onChange((isOn: boolean) => {
-                  this.showDone = isOn;
+            Text('显示完成')
+              .fontSize(13)
+              .fontColor(SUB_TEXT_COLOR)
+            Toggle({ type: ToggleType.Switch, isOn: this.showDone })
+              .selectedColor(PRIMARY_COLOR)
+              .margin({ left: 8 })
+              .onChange((isOn: boolean) => {
+                this.showDone = isOn;
+              })
+          }
+        }
+        .width('100%')
+        .alignItems(VerticalAlign.Center)
+        .margin({ top: 18 })
+
+        Scroll() {
+          Column({ space: 16 }) {
+            if (this.visibleMemos().length === 0) {
+              EmptyState()
+            } else {
+              ForEach(this.visibleMemos(), (memo: MemoItem) => {
+                MemoCard({
+                  memo: memo,
+                  onToggleDone: (id: number, done: boolean) => {
+                    this.toggleDone(id, done);
+                  },
+                  onEdit: (id: number) => {
+                    this.openEditDialog(id);
+                  },
+                  onDelete: (id: number) => {
+                    this.deleteMemo(id);
+                  }
                 })
+              }, (memo: MemoItem) => memo.id.toString())
             }
           }
           .width('100%')
-          .alignItems(VerticalAlign.Center)
-          .margin({ top: 16 })
-
-          Scroll() {
-            Column({ space: 14 }) {
-              if (this.visibleMemos().length === 0) {
-                EmptyState()
-              } else {
-                ForEach(this.visibleMemos(), (memo: MemoItem) => {
-                  MemoCard({
-                    memo: memo,
-                    onToggleDone: (id: number, done: boolean) => {
-                      this.toggleDone(id, done);
-                    },
-                    onEdit: (id: number) => {
-                      this.openEditDialog(id);
-                    },
-                    onDelete: (id: number) => {
-                      this.deleteMemo(id);
-                    }
-                  })
-                }, (memo: MemoItem) => memo.id.toString())
-              }
-            }
-            .width('100%')
-            .padding({ bottom: 96 })
-          }
-          .layoutWeight(1)
-          .scrollBar(BarState.Off)
+          .padding({ bottom: 120 })
         }
         .layoutWeight(1)
-        .padding({ left: 18, right: 18 })
+        .scrollBar(BarState.Off)
       }
-      .width('100%')
-      .height('100%')
-      .backgroundColor(PAGE_BACKGROUND)
+      .layoutWeight(1)
+      .padding({ left: 18, right: 18 })
 
-      Button('+')
-        .width(58)
-        .height(58)
-        .fontSize(30)
+      Button('写一条新的备忘')
+        .width('88%')
+        .height(54)
+        .fontSize(17)
         .fontWeight(FontWeight.Bold)
         .fontColor(Color.White)
         .backgroundColor(PRIMARY_COLOR)
-        .borderRadius(29)
+        .borderRadius(27)
         .shadow({
-          radius: 18,
-          color: '#334F7FFF',
+          radius: 14,
+          color: '#330F766E',
           offsetX: 0,
-          offsetY: 8
+          offsetY: 7
         })
-        .margin({ right: 22, bottom: 28 })
+        .margin({ bottom: 20 })
         .onClick(() => {
           this.openAddDialog();
         })
     }
     .width('100%')
     .height('100%')
+    .backgroundColor(PAGE_BACKGROUND)
   }
 }
